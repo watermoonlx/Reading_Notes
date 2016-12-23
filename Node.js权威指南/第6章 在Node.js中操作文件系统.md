@@ -1,3 +1,5 @@
+[TOC]
+
 # 6.1 同步方法与异步方法
 
 ​	在Node中，使用`fs模块`来实现所有有关**文件**及**目录**的**创建**、**写入**及**删除**操作。
@@ -11,6 +13,8 @@
 # 6.2 对文件执行读写操作
 
 ## 6.2.1 文件的完整读写
+
+![读取和写入](./images/readFile_writeFile.png)
 
 ### （1）异步读
 
@@ -67,7 +71,7 @@ fs.appendFileSync(filename,data,[options]);
 
 ## 6.2.2 从指定位置处开始读写文件
 
-![open、read和write方法](./open_read_write.png)
+![open、read和write方法](./images/open_read_write.png)
 
 ### （1）open方法
 
@@ -114,4 +118,125 @@ fs.write(fd,buffer,offset,length,position,callback);
 # 6.3 创建与读取目录
 
 ### 6.3.1 创建目录
+
+```javascript
+fs.mkdir(path,[mode],callback);
+```
+
+​	`mode`：创建的目录的权限控制。
+
+​	`callback`：创建失败时的回调。`function(err)`。
+
+### 6.3.2 读取目录
+
+```javascript
+fs.readdir(path,callback);
+```
+
+​	`callback`：`function(err,files)`。files是一个数组，元素为读取到的所有文件名和目录名。
+
+
+
+# 6.4查看与修改文件或目录的信息
+
+### 6.4.1 查询文件或目录的信息
+
+```javascript
+fs.stat(path,callback);
+fs.lstat(path,callback);//当查看符号链接文件信息时，必须使用lstat。
+```
+
+​	`callback`：`function(err,stats:fs.State)`。
+
+​	fs.Stats对象的属性：
+
+| 属性                | 描述                                     |
+| ----------------- | -------------------------------------- |
+| isFile            |                                        |
+| isDirectory       |                                        |
+| nlink             | 文件或目录的硬连接数量。                           |
+| size              | 文件字节数。                                 |
+| atime             | 文件的访问时间。                               |
+| mtime             | 文件的修改时间。                               |
+| ctime             | 文件的创建时间。                               |
+| isBlockDevice     | 用于判断被查看文件是否为一个**块设备文件**。仅UNIX下有效。      |
+| isCharacterDevice | 用于判断被查看文件是否为一个**字符设备文件**。仅UNIX下有效。     |
+| isSymbolicLink    | 用于判断被查看文件是否为一个**符号链接文件**。仅在lstat方法中有效。 |
+| isFIFO            | 用于判断被查看文件是否为一个**FIFO文件**。仅在UNIX下       |
+| isSocket          | 用于判断被查看文件是否为一个**socket文件**。仅在UNIX下有效。  |
+| ...               | 其他                                     |
+
+
+
+### 6.4.2 检查文件或目录是否存在
+
+```javascript
+fs.exists(path,callback);
+```
+
+​	`callback`：`function(exists:bool)`
+
+### 6.4.3 获取文件或目录的绝对路径
+
+```javascript
+fs.realpath(path,[cache],callback);
+```
+
+### 6.4.4 修改文件访问时间及修改时间
+
+```javascript
+fs.utimes(path,atime,mtime,callback);
+```
+
+​	`atime`：指定修改后的访问时间。
+
+​	`mtime`：指定修改后的修改时间。
+
+​	`callback`：修改完成后的回调函数。`function(err)`。
+
+
+
+​	若通过`fs.open`方法得到文件描述符，则可使用下面的方法：
+
+```javascript
+fs.futimes(fd,atime,mtime,callback);
+```
+
+### 6.4.5 修改文件或目录的读写权限
+
+```javascript
+fs.chmod(path,mode,callback);
+```
+
+![mode](./images/mode.png)
+
+
+
+# 6.5 可以对文件或目录执行的其他操作
+
+### 6.5.1 移动文件或目录
+
+```javascript
+fs.rename(oldPath,newPath,callback);
+```
+
+​	`callback`：`function(err)`。
+
+### 6.5.2 创建与删除文件的硬链接（快捷方式）
+
+​	创建硬链接：
+
+```javascript
+fs.link(srcpath,dstpath,callback);//srcpath与dstpath必须位于同一卷中
+```
+
+​	删除硬链接：
+
+```javascript
+fs.unlink(path,callback);
+```
+
+​	创建硬链接后，每一个硬链接都是独立的，原文件也算一个硬链接。删除任何一个都可以。但删除最后一个硬链接，则相当于删除这个文件了。
+
+​	PS：移动文件本质上就是硬链接的创建和原硬链接的删除过程。
 

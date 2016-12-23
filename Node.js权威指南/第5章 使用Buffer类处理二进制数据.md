@@ -98,7 +98,7 @@ decoder.write(buf2);
 
 ​	Buffer对象的read系列方法用于将Buffer对象中的数据读取出来，并转换为JS中的Number类型后输出。write系列方法用于将JS中的Number类型数据转化为精确数据类型后再写入Buffer对象。
 
-![Buffer对象与Number对象](./Buffer与Number.png)
+![Buffer对象与Number对象](./images/Buffer与Number.png)
 
 
 
