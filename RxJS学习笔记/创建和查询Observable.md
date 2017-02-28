@@ -89,6 +89,10 @@ Hot：无论是否有订阅者，流中已有数据产生。多个订阅者共�
     * AsyncSubject：只返回最后一个值，且在Completed时返回。
 
 
+***
+
+
+
 # 2. 从事件到Observable
 
 RxJS提供了工厂方法，用以将DOM和NodeJS中的异步事件转换为Observable流，流中数据为事件相关消息。
@@ -150,6 +154,10 @@ var subscription = source.subscribe(e => alert($( e.target ).text()));
 
 delHandler函数也支持额外的一个参数，用以处理那种，订阅时返回一个对象，用于取消，的情况。
 
+***
+
+
+
 # 3. 从Callback到Observable
 
 将回调函数作为最后一个参数的异步编程模式。
@@ -197,6 +205,10 @@ Rx.Observable.prototype.toCallback = cb => {
 };
 ```
 
+***
+
+
+
 # 4.从Promise到Observable
 
 Promise的缺点：
@@ -213,6 +225,10 @@ RxJS库原生支持Promise，一些Observable的实例方法，可以直接由Pr
 ## 4.2 将Observable流转换为Promise
 
 `Rx.Observable.prototype.toPromise()`
+
+***
+
+
 
 # 5. Generator和Observable
 
@@ -253,4 +269,110 @@ spawned.subscribe(
 ## 5.2 Mixing Operators with Generators
 
 RxJS中的许多Operator也支持Generator。可将Generator函数的返回值视为一个Observable。
+
+```javascript
+function* fibonacci(){
+  var fn1 = 1;
+  var fn2 = 1;
+  while (1) {
+    var current = fn2;
+    fn2 = fn1;
+    fn1 = fn1 + current;
+    yield current;
+  }
+}
+
+Rx.Observable.from(fibonacci())
+  .take(10)
+  .subscribe(function (x) {
+    console.log('Value: %s', x);
+  });
+
+//=> Value: 1
+//=> Value: 1
+//=> Value: 2
+//=> Value: 3
+//=> Value: 5
+//=> Value: 8
+//=> Value: 13
+//=> Value: 21
+//=> Value: 34
+//=> Value: 55
+```
+
+***
+
+
+
+# 6. 查询Observable流
+
+## 6.1 组合不同的流
+
+``Rx.Observable.prototype.merge()`：组合两个流。流中数据的发送顺序没有保障。两个流同时被激活。
+
+`Rx.Observable.prototype.concat()`：按**顺序**组合两个流。只有当第一个流中数据发送完毕，第二个流的数据才开始发送。只有第一个流触发了completed事件，第二个流才被激活。
+
+`Rx.Observable.prototype.catch()`：按**顺序**组合两个流。若第一个流完成发送，并且没有产生任何错误，则第二个流不会被激活。
+
+`Rx.Observable.prototype.onErrorResumeNext()`：按**顺序**组合两个流。即便第一个流由于出错而不能完成发送，第二个流也会被激活。
+
+## 6.2 投射
+
+`Rx.Observable.prototype.map()/select()`
+
+`Rx.Observable.prototype.flatMap()/selectMany()`：无顺序保障
+
+`Rx.Observable.prototype.concatMap()/selectConcat()`：有顺序保障
+
+## 6.3 过滤
+
+`Rx.Observable.prototype.filter()`
+
+## 6.4 基于时间的操作
+
+通过缓存来达到基于时间操作Observable流。
+
+`Rx.Observable.prototype.bufferWithCount()`：缓存指定数量的值。当缓存满后，一次性以Array的形式推送所有缓存数据。
+
+`Rx.Observable.prototype.bufferWithTime()`：在指定时间内缓存所有值。当时间到后，一次性以Array的形式推送所有缓存数据。
+
+[参考资料：分类的操作符](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/gettingstarted/categories.md)
+
+***
+
+
+
+# 7. 错误处理
+
+## 7.1 错误捕捉
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -154,7 +154,7 @@ fs.lstat(path,callback);//当查看符号链接文件信息时，必须使用lst
 | ----------------- | -------------------------------------- |
 | isFile            |                                        |
 | isDirectory       |                                        |
-| nlink             | 文件或目录的硬连接数量。                           |
+| nlink             | 文件的硬连接数量。                              |
 | size              | 文件字节数。                                 |
 | atime             | 文件的访问时间。                               |
 | mtime             | 文件的修改时间。                               |
@@ -222,12 +222,20 @@ fs.rename(oldPath,newPath,callback);
 
 ​	`callback`：`function(err)`。
 
-### 6.5.2 创建与删除文件的硬链接（快捷方式）
+### 6.5.2 创建与删除文件的硬链接
+
+​	
+
+[理解 Linux 的硬链接与软链接]: http://www.ibm.com/developerworks/cn/linux/l-cn-hardandsymb-links/#fig2
+
+![](./images/Hard_Soft_Link.jpg)
+
+​	硬链接相当于文件别名，软链接相当于快捷方式。软链接文件的内容是指向的文件的路径。
 
 ​	创建硬链接：
 
 ```javascript
-fs.link(srcpath,dstpath,callback);//srcpath与dstpath必须位于同一卷中
+fs.link(srcpath,dstpath,callback);//srcpath与dstpath必须位于同一卷中，不可为目录创建硬链接。
 ```
 
 ​	删除硬链接：
@@ -239,4 +247,146 @@ fs.unlink(path,callback);
 ​	创建硬链接后，每一个硬链接都是独立的，原文件也算一个硬链接。删除任何一个都可以。但删除最后一个硬链接，则相当于删除这个文件了。
 
 ​	PS：移动文件本质上就是硬链接的创建和原硬链接的删除过程。
+
+### 6.5.3 创建与查看符号链接（软链接）
+
+​	创建软链接：
+
+```javascript
+fs.symlink(srcpath,dstpath,[type],callback);
+```
+
+​	`type`：'file'|'dir'|'junction '
+
+​	读取软链接中包含的另一个文件或目录的路径：
+
+```javascript
+fs.readlink(path,callback);
+```
+
+### 6.5.4 截断文件
+
+ 	截断文件：先清除文件内容，然后修改文件尺寸。
+
+```javascript
+fs.truncate(filename,len,callback);
+fs.truncate(fd,len,callback);//先fs.open
+```
+
+### 6.5.5 删除空目录
+
+```javascript
+fs.rmdir(path,callback);
+```
+
+### 6.5.6 监视文件或目录
+
+#### （1）监视文件
+
+```javascript
+fs.watchFile(filename,[options],listener);
+```
+
+​	`options`：是一个对象。
+
+​			persistent：bool，当指定了呗监视的文件后是否保持正在运行的应用程序。默认为true。
+
+​			interval：每个多少毫秒检查一次文件是否变化。
+
+​	`listener`：`function(curr,prev)`。参数类型都是fs.Status类。
+
+​	取消监视：
+
+```javascript
+fs.unwatchFile(filename,[listener]);
+```
+
+#### （2）监视文件或目录
+
+```javascript
+var watcher=fs.watch(filename,[option],[listener]);
+```
+
+​	`listener`：`function(event,filename)`。
+
+​		event：'rename'|'change'。`rename`包括重命名、移动也删除。`change`是文件内容发生变化。
+
+​		watcher是一个`fs.FSWatcher`对象，它拥有一个`close`方法，用于停止监视。
+
+​	filename：文件或目录必须已存在。
+
+​	另一种使用方法：
+
+```javascript
+var fs=require('fs');
+var watcher=fs.watch('./message.txt');
+watcher.on('change',function(event,filename)){
+  	console.log(event);
+	console.log(filename);
+}
+```
+
+
+
+# 6.6 使用文件流
+
+### 6.6.1 流的基本概念
+
+
+
+# 6.7 对路径进行操作（path模块）
+
+​	`path`模块提供了处理与转换路径的方法及属性。
+
+#### (1) `normalize`方法
+
+​	将非标准路径字符串标准化。
+
+#### (2) `join`方法
+
+​	将多个参数值字符串结合为一个路径字符串。
+
+```javascript
+path.join([path1],[path2],[...]);
+```
+
+#### (3) `resolve`方法
+
+​	以应用程序根目录为起点，根据所有的参数值字符串解析出一个绝对路径。
+
+```javascript
+path.resolve(path1,[path2],[...]);
+```
+
+#### (4) `relative`方法
+
+​	获取两个路径之间的相对关系。
+
+```javascript
+path.relative(from,to);
+```
+
+#### (5) `dirname`方法
+
+​	获取一个路径中的目录名。
+
+#### (6) `basename`方法
+
+​	获取一个路径中的文件名。
+
+#### (7) `extname`方法
+
+​	获取一个路径中的扩展名。
+
+#### (8) `path.sep`属性
+
+​	当前操作系统的文件分隔符。
+
+#### (9) `path.delimiter`属性
+
+​	当前操作系统的路径分隔符。
+
+​	Windows中为“;”，UNIX中为“:”。
+
+
 
