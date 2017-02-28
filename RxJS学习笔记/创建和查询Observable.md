@@ -42,7 +42,7 @@ var sourceStream=Rx.Observable.timer(
 //{value:1,timestamp:23424234}
 ```
 
-## 从数组、类数组对象、可枚举对象、生成器函数创建Observable
+## 1.4 从数组、类数组对象、可枚举对象、生成器函数创建Observable
 
 ```javascript
 //Array
@@ -75,7 +75,7 @@ function* fibonacci () {
 var sourceStream5=Rx.Observable.from(fibonacci()).take(5);
 ```
 
-## 1.4 Cold vs. Hot Observables
+## 1.5 Cold vs. Hot Observables
 
 Cold：订阅时才触发执行函数。每个订阅关系是彼此独立，互不影响的。
 Hot：无论是否有订阅者，流中已有数据产生。多个订阅者共享流中数据。
@@ -150,13 +150,31 @@ var subscription = source.subscribe(e => alert($( e.target ).text()));
 
 delHandler函数也支持额外的一个参数，用以处理那种，订阅时返回一个对象，用于取消，的情况。
 
-# 3. 将Callback转换为Observable流
+# 3. 从Callback到Observable
 
 将回调函数作为最后一个参数的异步编程模式。
 
 ## 3.1 将Callback转换为Observable流
 
+对通过回调来响应的异步方法进行包装，包装函数将返回一个Observable。
+
 `Rx.Observable.fromCallback()`：可用于常见的回调模式，但不适用于NodeJS类型的将error对象作为回调函数第一个参数的回调模式。
+
+```javascript
+var Rx = require('rx'),
+    fs = require('fs');
+
+// Wrap the exists method
+var exists = Rx.Observable.fromCallback(fs.exists);
+
+var source = exists('file.txt');
+
+// Get the first argument only which is true/false
+var subscription = source.subscribe(
+    x => console.log('onNext: %s', x),
+    e => console.log('onError: %s', e),
+    () => console.log('onCompleted'));
+```
 
 `Rx.Observable.fromNodeCallback()`：专用于NodeJS类型的回调模式。
 
@@ -179,7 +197,60 @@ Rx.Observable.prototype.toCallback = cb => {
 };
 ```
 
+# 4.从Promise到Observable
 
+Promise的缺点：
+1. 只能返回单个值。
+2. 不能取消。
+3. 不能对多个Promise进行合并操作。
 
+RxJS库原生支持Promise，一些Observable的实例方法，可以直接由Promise去调用。但返回值都是Observable流。即可以把Promise视为一个只返回一个值的Observable。（应该不能subscribe）
 
+## 4.1 将Promise转换为Observable流
+
+`Rx.Observable.fromPromise()`：要求参数是一个符合ES6标准的Promise。
+
+## 4.2 将Observable流转换为Promise
+
+`Rx.Observable.prototype.toPromise()`
+
+# 5. Generator和Observable
+
+## 5.1 Async/Await Style and RxJS
+
+`Rx.Observable.spawn()`:参数为一个Generator函数。
+
+包装需要按顺序进行的多个异步操作，使之可以以同步的方式书写。也就是说，这个方法实际上就是Async/Await模式的一种实现。
+
+```javascript
+var Rx = require('rx');
+
+var thunk = function (val) {
+  return function (cb) {
+    cb(null, val);
+  };
+};
+
+var spawned = Rx.Observable.spawn(function* () {
+  var v = yield thunk(12);//兼容多种异步模式，由RxJS将值取出并返回。
+  var w = yield [24];
+  var x = yield Rx.Observable.just(42);
+  var y = yield Rx.Observable.just(56);
+  var z = yield Promise.resolve(78);
+  return v + w[0] + x + y + z;
+});
+
+spawned.subscribe(
+  function (x) { console.log('next %s', x); },
+  function (e) { console.log('error %s', e); },
+  function () { console.log('completed'); }
+);
+
+// => next 212
+// => completed
+```
+
+## 5.2 Mixing Operators with Generators
+
+RxJS中的许多Operator也支持Generator。可将Generator函数的返回值视为一个Observable。
 
