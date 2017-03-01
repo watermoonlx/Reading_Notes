@@ -1,19 +1,19 @@
 import * as Rx from 'rxjs/Rx';
 
-var source = Rx.Observable.interval(2000)
-    .sample(Rx.Observable.interval(500))
-    .take(1000);
+let arr = [];
 
-var subscription = source.subscribe(
-    function (x) {
-        console.log('Next: ' + x);
-    },
-    function (err) {
-        console.log('Error: ' + err);
-    },
-    function () {
-        console.log('Completed');
-    });
+for (let i = 0; i < 1000; i++){
+    arr.push(i);
+}
 
-console.log('订阅完毕！！');
+let timeStart = Date.now();
 
+Rx.Observable.from(arr,Rx.Scheduler.asap).subscribe(
+    () => { },
+    () => { },
+    () => {
+        console.log(`Total time: ${Date.now()-timeStart}ms`)
+    }
+)
+
+console.log('All done!');
