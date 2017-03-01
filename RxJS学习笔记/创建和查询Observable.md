@@ -316,6 +316,8 @@ Rx.Observable.from(fibonacci())
 
 `Rx.Observable.prototype.onErrorResumeNext()`：按**顺序**组合两个流。即便第一个流由于出错而不能完成发送，第二个流也会被激活。
 
+`Rx.Observable.zip(...args, [resultSelector])`：第一个参数为多个Observable，第二个参数为结果筛选函数。等每一个Observable返回值后，将这些值作为参数传递给第二个参数处理。返回值一个Observable，数据为第二个函数的返回值。
+
 ## 6.2 投射
 
 `Rx.Observable.prototype.map()/select()`
@@ -344,15 +346,235 @@ Rx.Observable.from(fibonacci())
 
 # 7. 错误处理
 
-## 7.1 错误捕捉
+## 7.1 错误捕捉--`catch`
+
+***静态方法***：
+`Rx.Observable.catch(...args)`：参数为多个Observable或Observable数组。按顺序激活Observable，若由于异常而导致停止，则激活下一个Observable。函数返回值为另一个Observable，其数据为参数中的Observable最终成功获取的值。
+
+```javascript
+var source = Rx.Observable.catch(
+  get('url1'),
+  get('url2'),
+  get('url3'),
+  getCachedVersion()
+);
+
+var subscription = source.subscribe(
+  function (data) {
+    // Display the data as it comes in
+  }
+);
+```
+
+***实例方法***：
+`Rx.Observable.prototype.catch(Observable|Function)`：参数为另一个Observable或错误处理函数。若当前Observable实例出错，则启用备份Observable，或调用错误处理函数。错误处理函数也返回一个Observable。
+
+```javascript
+var source = get('url1').catch(getCachedVersion());
+
+var subscription = source.subscribe(
+  function (data) {
+    // Display the data as it comes in
+  }
+);
+```
+
+## 7.2 忽略错误--`onErrorResumeNext`
+
+***静态方法***：
+`Rx.Observable.onErrorResumeNext(...args)`：按顺序执行多个Observable，若其中一个出错，则忽略，继续执行下一个。返回为另一个Observable。
+
+***实例方法***
+`Rx.Observable.prototype.onErrorResumeNext(second:Observable|Promise)`：按顺序执行当前Observable和第二个Observable。若当前Observable发送错误，则忽略，继续执行第二个。
+
+>PS：`catch`是若执行正确，则不会执行后面的。`onErrorResumeNext`则是，一定会执行所有Observable，无论其中的Observable是否出错。
+
+## 7.3 重试Observable--`retry()` & `retryWhen()`
+
+`Rx.Observable.prototype.retry(n:number)`：若出错，则重试。参数为重试次数。返回值为另一个Observable。
+
+```javascript
+var source = get('url').retry(3);
+
+var subscription = source.subscribe(
+  function (data) {
+    console.log(data);
+  },
+  function (err) {
+    console.log(err);
+  }
+);
+```
+`Rx.Observable.prototype.retryWhen(notifier)`：在指定条件下重试。参数notifier是一个函数，该函数的参数是一个Observable，其数据为Observable实例中触发的error。notifier函数的主体，是处理这个Observable并返回一个新的“重试标记”Observable。这样，当error流新数据时，重试标记Observable会得到相应通知。若重试标记Observable也产生一个新的值，则重启。若抛出异常，则整个流抛出异常。若完成，则整个流完成。
+
+```javascript
+var source = Rx.Observable.interval(1000)
+    .map(function(n) {
+        if(n === 2) {
+            throw 'ex';
+        }
+        return n;
+    })
+    .retryWhen(function(errors) {
+        return errors.delay(200);//返回一个新的Observable，用于产生重试标记。这里重试标记总是延迟200ms发出。从而实现过200ms再重试。
+    })
+    .take(6);
+
+var subscription = source.subscribe(
+    function (x) {
+        console.log('Next: ' + x);
+    },
+    function (err) {
+        console.log('Error: ' + err);
+    },
+    function () {
+        console.log('Completed');
+    });
+    
+    
+var source = get('url').retryWhen(
+  function (attempts) {
+    return attempts
+      .zip(Rx.Observable.range(1, 3), function (_, i) { return i })
+      .flatMap(function (i) {
+        console.log('delay retry by ' + i + ' second(s)');
+        return Rx.Observable.timer(i * 1000);//逐渐增大重试等待时间，重试3次。
+      });
+  }
+);
+
+var subscription = source.subscribe(
+  function (data) {
+    // Displays the data from the URL or cached data
+    console.log(data);
+  }
+);
+// => delay retry by 1 second(s)
+// => delay retry by 2 second(s)
+// => Data
+```
+
+## 7.4 确保资源释放--`finally`
+
+`Rx.Observable.prototype.finally()`
+
+更优雅的方式：使用Disposable来封装需要释放的资源，使用using来调用：
+
+```javascript
+//封装需要释放的资源
+function DisposableWebSocket(url, protocol) {
+  var socket = new WebSocket(url, protocol);
+
+  // Create a way to close the WebSocket upon completion
+  var d = Rx.Disposable.create(function () {
+    socket.close();
+  });
+
+  d.socket = socket;
+
+  return d;
+}
+
+var source = Rx.Observable.using(
+  function () { return new DisposableWebSocket('ws://someurl', 'xmpp'); },
+  function (d) {
+    return Rx.Observable.from(data)
+      .tap(function (data) { d.socket.send(data); });//每次调用就不要手动释放了
+  }
+);
+
+var subscription = source.subscribe();
+```
+
+## 7.5 延迟合并的Observable中的错误--`mergeDelayError`
+
+`Rx.Observable.mergeDelayError(...observables)`：合并多个observable到一个observable（类似于mergeAll），并且将流中产生的错误放到最后再触发。即正常的流都completed之后，再出发。
+***
+
+# 8.Observable流结合Transducers使用
+
+在Observable流上使用[transducer.js](https://github.com/cognitect-labs/transducers-js)类库。
+
+# 9.背压
+
+如何处理源Observable流产生数据的速度大于operator或observer能够处理的速度？
+
+Cold Observable：只有当有订阅者时才产生数据。
+Hot Observable：在订阅之前，其数据就已经在产生。Observable以自己的频率产生数据，不管下游能否处理。典型：事件流。
+
+## 9.1 有损背压
+
+通过抛弃一些数据，来匹配生产和消费速度。
+
+### Debounce
+`Rx.Observable.prototype.debounce()`：在间隔指定之间内源流没有新数据产生时，才取源流上一次产生的最后一个数据作为下一个数据。
+
+### Throttling
+`Rx.Observable.prototype.throttle()`：在指定间隔时间内，取源流第一个产生的数据作为下一个数据。
+
+### Sample
+`Rx.Observable.prototype.sample()`：在指定间隔时间（不能传number了？），去源流中产生的上一个数据。如果间隔时间小于源流创建数据的时间，则除了第一次采样，此后几次不会产生数据。
+
+### Pausable
+`Rx.Observable.prototype..pausable()`：使Observable可暂停，不再产生数据，丢弃在暂停过程中产生的数据。注意不应该用在cold observable上，因为调用resume继续产生数据时，cold observable会重启整个执行函数。
+
+```javascript
+var pausable = getSomeObservableSource()
+  .pausable();
+
+pausable.subscribeOnNext(function (data) {
+  console.log('Data: %o', data);
+});
+
+pausable.pause();//暂停
+
+// Resume in five seconds
+setTimeout(function () {
+  pausable.resume();//继续
+}, 5000);
+```
+
+## 9.2 有损背压
+
+### Buffers and Windows
+
+`Rx.Observable.prototype.bufferWithCount(count, [skip])`：缓存指定数量的数据，然后作为一个Array发送。skip指定开始下一个缓存的间隔数。
+
+`Rx.Observable.prototype.bufferWithTime(timeSpan, [timeShift | scheduler], [scheduler])`
+
+`Rx.Observable.prototype.bufferWithTimeOrCount(timeSpan, count, [scheduler])`
+
+### Pausable Buffers
+
+`Rx.Observable.prototype.pausableBuffered(pauser)`：与pausable方法类似。区别是，在暂停期间会缓存新到达的数据，而不是丢弃。再重新开始之后，依次返回这些数据。
+
+### Controlled Observables
+
+`Rx.Observable.prototype.controlled([enableQueue])`：缓存所有数据，在主动调用request时才发送数据。
+
+```javascript
+var source = Rx.Observable.range(0, 10).controlled();
+
+var subscription = source.subscribe(
+    function (x) {
+        console.log('Next: ' + x.toString());
+    },
+    function (err) {
+        console.log('Error: ' + err);
+    },
+    function () {
+        console.log('Completed');
+    });
+
+source.request(2);
+
+// => Next: 0
+// => Next: 1
+```
 
 
 
-
-
-
-
-
+http://www.introtorx.com/content/v1.0.10621.0/15_SchedulingAndThreading.html
 
 
 
