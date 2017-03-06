@@ -1,0 +1,39 @@
+{
+  "name": "tslearning",
+  "version": "1.0.0",
+  "description": "tslearning",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/watermoonlx/Reading_Notes.git"
+  },
+  "author": "Jake",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/watermoonlx/Reading_Notes/issues"
+  },
+  "homepage": "https://github.com/watermoonlx/Reading_Notes#readme",
+  "devDependencies": {
+    "browser-sync": "^2.18.8",
+    "chai": "^3.5.0",
+    "gulp": "^3.9.1",
+    "gulp-karma": "^0.0.5",
+    "gulp-sequence": "^0.4.6",
+    "gulp-tslint": "^7.1.0",
+    "gulp-typescript": "^3.1.5",
+    "karma": "^1.5.0",
+    "karma-chai": "^0.1.0",
+    "karma-coverage": "^1.1.1",
+    "karma-mocha": "^1.3.0",
+    "karma-phantomjs-launcher": "^1.0.2",
+    "karma-sinon": "^1.0.5",
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.7"
+  },
+  "dependencies": {
+    "jquery": "^3.1.1"
+  }
+}
