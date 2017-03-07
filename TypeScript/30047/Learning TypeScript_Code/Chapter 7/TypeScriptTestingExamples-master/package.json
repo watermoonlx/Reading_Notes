@@ -1,0 +1,62 @@
+{
+  "name": "TypeScriptTesting",
+  "version": "1.0.0",
+  "description": "Testing tools with typescript: gulp + karma + mocha + chai + sinon + nightwatch + coverage + travis",
+  "homepage": "https://github.com/remojansen/TypeScriptTesting",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/remojansen/TypeScriptTesting.git"
+  },
+  "keywords": [
+    "typescript",
+    "gulp",
+    "karma",
+    "mocha",
+    "chai",
+    "sinon",
+    "nightwatch",
+    "coverage",
+    "travis"
+  ],
+  "author": "Remo H. Jansen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/remojansen/TypeScriptTesting/issues"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.4",
+    "jquery": "^2.1.4"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.7.1",
+    "browserify": "^10.2.0",
+    "chai": "^2.3.0",
+    "gulp": "^3.8.11",
+    "gulp-coveralls": "^0.1.4",
+    "gulp-docco": "0.0.4",
+    "gulp-header": "^1.2.2",
+    "gulp-nightwatch": "^0.1.1",
+    "gulp-run": "^1.6.8",
+    "gulp-tslint": "^3.0.1-beta",
+    "gulp-typescript": "^2.7.3",
+    "gulp-uglify": "^1.2.0",
+    "karma": "^0.12.31",
+    "karma-chai": "^0.1.0",
+    "karma-coverage": "^0.3.1",
+    "karma-mocha": "^0.1.10",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-sinon": "^1.0.4",
+    "mocha": "^2.2.5",
+    "phantomjs": "^1.9.16",
+    "run-sequence": "^1.1.0",
+    "selenium-standalone": "^4.4.0",
+    "sinon": "^1.14.1",
+    "typescript": "^1.5.0-beta",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
