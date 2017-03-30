@@ -21,11 +21,21 @@ gulp.task('lint', function () {
         './source/ts/**/**.ts',
         './test/**/**.test.ts'
     ])
-        .pipe(tslint())
-        .pipe(tslint.report('verbose'));
+        .pipe(tslint({
+            formatter: "verbose"
+        }))
+        .pipe(tslint.report())
 });
 
+//ts项目编译
 gulp.task('tsc', function () {
+    var tsProject = ts.createProject({
+        removeComments: true,
+        noImplicitAny: true,
+        target: 'ES3',
+        module: 'commonjs',
+        declarationFiles: false
+    });
     return gulp.src('./source/ts/**/**.ts')
         .pipe(ts(tsProject))
         .js
@@ -33,15 +43,14 @@ gulp.task('tsc', function () {
 });
 
 //测试项目编译
-var tsTestProject = ts.createProject({
-    removeComments: true,
-    noImplicitAny: true,
-    target: 'ES3',
-    module: 'commonjs',
-    declarationFiles: false
-});
-
 gulp.task('tsc-tests', function () {
+    var tsTestProject = ts.createProject({
+        removeComments: true,
+        noImplicitAny: true,
+        target: 'ES3',
+        module: 'commonjs',
+        declarationFiles: false
+    });
     return gulp.src('./test/**/**.test.ts')
         .pipe(ts(tsTestProject))
         .js
@@ -82,24 +91,7 @@ gulp.task('karma', function (cb) {
         .on('end', cb)
         .on('error', function (err) {
             throw err;
-        })
-});
-
-
-gulp.task('bundle', function (cb) {
-    gulpSequence(
-        'build',
-        ['bundle-js', 'bundle-test'],
-        cb
-    );
-});
-
-gulp.task('test', function (db) {
-    gulpSequence(
-        'bundle',
-        ['karma'],
-        db
-    );
+        });
 });
 
 gulp.task('browser-sync', ['test'], function () {
@@ -117,10 +109,32 @@ gulp.task('browser-sync', ['test'], function () {
     ], [browserSync.reload]);
 });
 
-gulp.task('default', gulpSequence(
-    'lint',
-    ['tsc', 'tsc-tests'],
-    ['bundle-js', 'bundle-test'],
-    'karma',
-    'browser-sync'
-));
+gulp.task('build', function (cb) {
+    gulpSequence(
+        'lint',
+        ['tsc', 'tsc-tests'],
+        cb
+    )
+})
+
+gulp.task('bundle', function (cb) {
+    gulpSequence(
+        'build',
+        ['bundle-js', 'bundle-test'],
+        cb
+    );
+});
+
+gulp.task('test', function (cb) {
+    gulpSequence(
+        'bundle',
+        ['karma'],
+        cb
+    );
+});
+
+gulp.task('serve', function (cb) {
+    gulpSequence('bundle', 'browser-sync', cb);
+});
+
+gulp.task('default', ['serve']);

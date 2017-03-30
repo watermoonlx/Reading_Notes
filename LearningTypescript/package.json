@@ -18,12 +18,15 @@
   "homepage": "https://github.com/watermoonlx/Reading_Notes#readme",
   "devDependencies": {
     "browser-sync": "^2.18.8",
+    "browserify": "^14.1.0",
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
     "gulp-karma": "^0.0.5",
     "gulp-sequence": "^0.4.6",
+    "gulp-sourcemaps": "^2.4.1",
     "gulp-tslint": "^7.1.0",
     "gulp-typescript": "^3.1.5",
+    "gulp-uglify": "^2.0.1",
     "karma": "^1.5.0",
     "karma-chai": "^0.1.0",
     "karma-coverage": "^1.1.1",
@@ -31,7 +34,8 @@
     "karma-phantomjs-launcher": "^1.0.2",
     "karma-sinon": "^1.0.5",
     "mocha": "^3.2.0",
-    "sinon": "^1.17.7"
+    "sinon": "^1.17.7",
+    "vinyl-transform": "^1.0.0"
   },
   "dependencies": {
     "jquery": "^3.1.1"
