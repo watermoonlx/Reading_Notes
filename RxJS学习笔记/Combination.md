@@ -33,6 +33,10 @@ firstOrder.subscribe(x => console.log(x));
 
 将一个Observable序列map为多个Observable序列，然后将这些序列merge，形成一个一阶Observable。
 
+或
+
+将一个Observalbe序列map为一个高阶Observable序列，然后执行mergeAll。
+
 ![merge](http://reactivex.io/rxjs/img/mergeMap.png)
 
 ***
@@ -67,6 +71,27 @@ count$.subscribe(x => console.log(x));
 ```
 
 ***
+
+## concat
+
+***实例方法，Observable.prototype.concat***
+***静态方法，Observable.concat***
+
+该方法类似于merge，都是将多个Observable压平，成为一个Observable。但区别是，merge没有顺序，而concat，只有当前一个Observable序列发送完毕，才会开始发送下一个Observable的数据。
+
+![merge](http://reactivex.io/rxjs/img/concat.png)
+
+## concatAll
+
+参照mergeAll，只是保持顺序。
+
+## concatMap
+
+参照concatMap，只是保持顺序。
+
+## concatMapTo
+
+参照mergeMapTo，只是保持顺序。
 
 ## combineAll
 
