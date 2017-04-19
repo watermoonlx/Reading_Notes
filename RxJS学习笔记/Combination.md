@@ -121,5 +121,3 @@ result.subscribe(x => console.log(x));//这里的x是个数组，其成员为对
 
 ## combineLatest
 
-
-  [1]: http://reactivex.io/rxjs/img/merge.png
