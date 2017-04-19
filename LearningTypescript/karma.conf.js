@@ -19,6 +19,7 @@ module.exports = function (config) {
         colors: true,
         autoWatch: false,
         singleRun: false,
-        logLevel: config.LOG_INFO
+        logLevel: config.LOG_INFO,
+        failOnEmptyTestSuite: false
     });
 };

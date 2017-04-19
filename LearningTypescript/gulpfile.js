@@ -2,12 +2,13 @@ var gulp = require('gulp');
 var tslint = require('gulp-tslint');
 var ts = require('gulp-typescript');
 var browserify = require('browserify');
-var transform = require('vinyl-transform');
+var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var gulpSequence = require('gulp-sequence');
 var karma = require('gulp-karma');
 var browserSync = require('browser-sync');
+var buffer = require('vinyl-buffer');
 
 gulp.task('clean', function (cb) {
     del(['./temp'], function () {
@@ -15,19 +16,23 @@ gulp.task('clean', function (cb) {
     });
 });
 
+gulp.task('copy:index', function (cb) {
+  return gulp.src('./index.html')
+    .pipe(gulp.dest('./dist'));
+});
+
 //代码格式检查
 gulp.task('lint', function () {
     return gulp.src([
         './source/ts/**/**.ts',
         './test/**/**.test.ts'
-    ])
-        .pipe(tslint({
-            formatter: "verbose"
-        }))
-        .pipe(tslint.report())
+    ]).pipe(tslint({
+        formatter: "verbose"
+    }))
+        .pipe(tslint.report());
 });
 
-//ts项目编译
+//项目编译
 gulp.task('tsc', function () {
     var tsProject = ts.createProject({
         removeComments: true,
@@ -36,13 +41,13 @@ gulp.task('tsc', function () {
         module: 'commonjs',
         declarationFiles: false
     });
-    return gulp.src('./source/ts/**/**.ts')
+
+    return gulp.src('./src/**/**.ts')
         .pipe(ts(tsProject))
         .js
-        .pipe(gulp.dest('./temp/source/js'));
+        .pipe(gulp.dest('./temp/src/js'));
 });
 
-//测试项目编译
 gulp.task('tsc-tests', function () {
     var tsTestProject = ts.createProject({
         removeComments: true,
@@ -58,26 +63,25 @@ gulp.task('tsc-tests', function () {
 });
 
 //代码打包及压缩
-var browserified = transform(function (filename) {
-    var b = browserify({
-        entries: filename,
-        debug: true
-    });
-    return b.bundle();
-});
-
 gulp.task('bundle-js', function () {
-    return gulp.src('./temp/source/js/main.ts')
-        .pipe(browserified)
+    return browserify({
+        entries: './temp/src/js/app.js',
+        debug: true
+    }).bundle()
+        .pipe(source('bundle.js'))
+        .pipe(buffer())
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(uglify())
         .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('./dist/source/js'));
+        .pipe(gulp.dest('./dist/source/js/'));
 });
 
 gulp.task('bundle-test', function () {
-    return gulp.src('./temp/test/**/**.test.js')
-        .pipe(browserified)
+    return browserify({
+        entries: './temp/test/app.test.js',
+        debug: true
+    }).bundle()
+        .pipe(source('bundle.test.js'))
         .pipe(gulp.dest('./dist/test/'));
 });
 
@@ -115,12 +119,13 @@ gulp.task('build', function (cb) {
         ['tsc', 'tsc-tests'],
         cb
     )
-})
+});
 
 gulp.task('bundle', function (cb) {
     gulpSequence(
         'build',
         ['bundle-js', 'bundle-test'],
+        'copy:index',
         cb
     );
 });
@@ -133,8 +138,31 @@ gulp.task('test', function (cb) {
     );
 });
 
-gulp.task('serve', function (cb) {
-    gulpSequence('bundle', 'browser-sync', cb);
+gulp.task('browserSync', function () {
+    browserSync({
+        server: {
+            baseDir: './dist'
+        }
+    });
+    return gulp.watch([
+        './dist/source/js/**/*.js',
+        './dist/source/css/**.css',
+        './dist/test/**/**.test.js',
+        './dist/data/**/**',
+        './index.html'
+    ], [browserSync.reload]);
 });
 
-gulp.task('default', ['serve']);
+gulp.task('watch', ['test'], function() {
+    gulp.watch('./src/**/**.ts', ['test']);
+});
+
+gulp.task('serve', function (cb) {
+    gulpSequence(
+        'watch',
+        'browserSync',
+        cb
+    )
+});
+
+gulp.task('default', ['test']);
