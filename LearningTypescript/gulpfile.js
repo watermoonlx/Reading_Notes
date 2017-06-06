@@ -6,7 +6,7 @@ var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var gulpSequence = require('gulp-sequence');
-var karma = require('gulp-karma');
+var karmaServer = require('karma').Server;
 var browserSync = require('browser-sync');
 var buffer = require('vinyl-buffer');
 
@@ -17,8 +17,8 @@ gulp.task('clean', function (cb) {
 });
 
 gulp.task('copy:index', function (cb) {
-  return gulp.src('./index.html')
-    .pipe(gulp.dest('./dist'));
+    return gulp.src('./index.html')
+        .pipe(gulp.dest('./dist'));
 });
 
 //代码格式检查
@@ -37,13 +37,15 @@ gulp.task('tsc', function () {
     var tsProject = ts.createProject({
         removeComments: true,
         noImplicitAny: true,
-        target: 'ES3',
+        target: 'ES5',
         module: 'commonjs',
-        declarationFiles: false
+        declarationFiles: false,
+        emitDecoratorMetadata: true,
+        experimentalDecorators:true
     });
 
     return gulp.src('./src/**/**.ts')
-        .pipe(ts(tsProject))
+        .pipe(tsProject())
         .js
         .pipe(gulp.dest('./temp/src/js'));
 });
@@ -52,12 +54,14 @@ gulp.task('tsc-tests', function () {
     var tsTestProject = ts.createProject({
         removeComments: true,
         noImplicitAny: true,
-        target: 'ES3',
+        target: 'ES5',
         module: 'commonjs',
-        declarationFiles: false
+        declarationFiles: false,
+        emitDecoratorMetadata: true,
+        experimentalDecorators:true
     });
     return gulp.src('./test/**/**.test.ts')
-        .pipe(ts(tsTestProject))
+        .pipe(tsTestProject())
         .js
         .pipe(gulp.dest('./temp/test/'));
 });
@@ -87,15 +91,10 @@ gulp.task('bundle-test', function () {
 
 //测试任务
 gulp.task('karma', function (cb) {
-    gulp.src('./dist/test/**/**.test.js')
-        .pipe(karma({
-            configFile: 'karma.conf.js',
-            action: 'run'
-        }))
-        .on('end', cb)
-        .on('error', function (err) {
-            throw err;
-        })
+    new karmaServer({
+        configFile: __dirname + '/karma.conf.js',
+        singleRun: true
+    }, cb).start();
 });
 
 gulp.task('build', function (cb) {
@@ -138,7 +137,7 @@ gulp.task('browserSync', function () {
     ], [browserSync.reload]);
 });
 
-gulp.task('watch', ['test'], function() {
+gulp.task('watch', ['test'], function () {
     gulp.watch('./src/**/**.ts', ['test']);
 });
 
