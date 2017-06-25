@@ -91,10 +91,30 @@ gulp.task('bundle-test', function () {
 
 //测试任务
 gulp.task('karma', function (cb) {
-    new karmaServer({
-        configFile: __dirname + '/karma.conf.js',
-        singleRun: true
-    }, cb).start();
+    gulp.src('./dist/test/**/**.test.js')
+        .pipe(karma({
+            configFile: 'karma.conf.js',
+            action: 'run'
+        }))
+        .on('end', cb)
+        .on('error', function (err) {
+            throw err;
+        });
+});
+
+gulp.task('browser-sync', ['test'], function () {
+    browserSync({
+        server: {
+            baseDir: './dist'
+        }
+    });
+    return gulp.watch([
+        './dist/source/js/**/*.js',
+        './dist/source/css/**.css',
+        './dist/test/**/**.test.js',
+        './dist/data/**/**',
+        './index.html'
+    ], [browserSync.reload]);
 });
 
 gulp.task('build', function (cb) {
