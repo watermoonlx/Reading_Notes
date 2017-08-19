@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/watermoonlx/Reading_Notes#readme",
   "devDependencies": {
+    "@types/handlebars": "^4.0.32",
+    "@types/jquery": "^2.0.40",
     "browser-sync": "^2.18.8",
     "browserify": "^14.1.0",
     "chai": "^3.5.0",
@@ -40,6 +42,7 @@
     "vinyl-transform": "^1.0.0"
   },
   "dependencies": {
+    "handlebars": "^4.0.6",
     "jquery": "^3.1.1"
   }
 }

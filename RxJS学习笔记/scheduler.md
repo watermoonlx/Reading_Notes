@@ -1,7 +1,8 @@
 scheduler是用来调度一个action在什么时候、什么上下文下运行的对象。每一个scheduler有一个schedule方法，用来调度action。
 
-我们常用subscribeOn()和observeOn()方法来分别调度“执行”和“发送消息”两个过程。
-subscribeOn()用于调度一个Observable在被订阅时，会在什么时候开始执行内部执行函数。这个方法会创建一个代理Observable来包装源Observable。
-observeOn()用于调度一个Observable在执行完成后，在什么时候发送消息通知Observer。这个方法会创建一个代理Observer，这个代理Observer负责真正的通知最终的Observer。
+我们常用subscribeOn()和observeOn()方法来分别调度“订阅”和“发送消息”两个过程。
+
+* subscribeOn()用于调度一个Observable在被订阅时，会在什么时候执行subscribe这个动作，从而触发执行函数。
+* observeOn()用于调度一个Observable在执行完成后，在什么时候发送消息通知Observer。这个方法本质上是一个Operator。它创建并返回了一个新的Observable作为代理，供订阅。而在其内部执行函数中，它订阅了源Observable，并在得到数据时，使用指定的Schedule来在合适的时机将消息发送给订阅者。
 
 由于JS本身是单线程的，所以scheduler的主要工作是调度action在什么时候执行。但在其他语言的实现中，scheduler还要负责控制在多个线程之间调度的问题。
