@@ -20,6 +20,7 @@ test/UnitTest/
 test/test_reports/
 src/ts_build/
 coverage/
+**/node_modules/
 
 
 
