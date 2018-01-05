@@ -1,0 +1,21 @@
+{
+  "name": "node_mirco_service",
+  "version": "1",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "dependencies": {
+    "@types/express": "^4.0.39",
+    "@types/node": "^8.0.47",
+    "@types/seneca": "^2.1.8",
+    "express": "^4.16.2",
+    "seneca": "^3.4.3",
+    "seneca-entity": "^2.0.2",
+    "seneca-web": "^2.1.0",
+    "seneca-web-adapter-express": "^1.0.2"
+  },
+  "devDependencies": {
+    "ts-node": "^3.3.0",
+    "typescript": "^2.5.3"
+  }
+}
