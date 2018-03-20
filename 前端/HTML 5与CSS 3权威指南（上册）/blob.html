@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Blob</title>
+</head>
+<body>
+    <textarea id="text" placeholder="请输入文字" cols="30" rows="10"></textarea>
+    <br>
+    <button id="btnDowload" onclick="Blob_test()">创建及下载二进制文件</button>
+    <output id="result"></output>
+
+    <script>
+        function Blob_test(){
+            const text=document.getElementById('text').value;
+            const result=document.getElementById('result');
+            const blob=new Blob([text]);
+            if(window.URL){
+                debugger;
+                result.innerHTML=`<a download href="${window.URL.createObjectURL(blob)}" target="_blank">文件下载</a>`;
+            }
+
+        }
+    </script>
+</body>
+</html>

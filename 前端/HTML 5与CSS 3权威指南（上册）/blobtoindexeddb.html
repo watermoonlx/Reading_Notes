@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="file"
+           id="file">
+    <input type="button"
+           value="在IndexedDB数据库中保存文件"
+           onclick="saveFile()">
+
+    <script>
+        const dbName = 'blobTest';
+        const dbVersion = 20180113;
+        const dbConnect = indexedDB.open(dbName, dbVersion);
+        let idb;
+
+        dbConnect.onsuccess = function (e) {
+            idb = e.target.result;
+        }
+
+        dbConnect.onerror = function () {
+            alert('数据库连接失败');
+        }
+
+        dbConnect.onupgradeneeded = function (e) {
+            idb = e.target.result;
+            // idb.createObjectStore('files');
+        }
+
+        function saveFile() {
+            const file = document.getElementById('file').files[0];
+            const tran = idb.transaction(['files'], 'readwrite');
+            const store = tran.objectStore('files');
+            const req = store.put(file, 'blob2');
+
+            req.onsuccess=function(e){
+                alert('保存成功');
+            }
+
+            req.onerror=function(e){
+                alert('保存失败');
+            }
+        }
+
+    </script>
+</body>
+
+</html>

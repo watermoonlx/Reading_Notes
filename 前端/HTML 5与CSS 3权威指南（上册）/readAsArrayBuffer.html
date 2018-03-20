@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <label>请选择一个图像文件：</label>
+    <input type="file"
+           id="file"
+           onchange="file_onchange()">
+    <br>
+    <output id="result"></output>
+
+    <script>
+        const result = document.getElementById('result');
+        const fileInput = document.getElementById('file');
+        if (typeof FileReader === 'undefined') {
+            result.innerHTML = `<p>抱歉，你的浏览器不支持FileReader</p>`;
+            fileInput.setAttribute('disabled', 'disabled');
+        }
+
+        function file_onchange() {
+            const file = fileInput.files[0];
+            if (!/image\/\w+/.test(file.type)) {
+                alert('请确保文件为图像类型');
+                return false;
+            }
+
+            const slice=file.webkitSlice(0,4);
+            const reader=new FileReader();
+            reader.readAsArrayBuffer(slice);
+            let type;
+            reader.onload=function(e){
+                const buffer=this.result;
+                const view=new DataView(buffer);
+                const magic=view.getInt32(0,false);
+                if(magic<0)
+                    magic=magic+
+            }
+        }
+    </script>
+</body>
+
+</html>

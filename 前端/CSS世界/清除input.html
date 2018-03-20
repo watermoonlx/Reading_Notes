@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge">
+    <title>Document</title>
+    <style>
+        input[type="text"] {
+            box-sizing: border-box;
+            width: 200px;
+            height: 40px;
+            padding: 10px 40px 10px 10px;
+            border: 1px solid #ccc;
+        }
+
+        .icon-clear {
+            width: 16px;
+            height: 16px;
+            margin: 1px 0 0 -38px;
+            border: 11px solid transparent;
+            border-radius: 50%;
+            background: #999;
+            color: white;
+            position: absolute;
+            visibility: hidden;
+        }
+
+        .icon-clear:before {
+            content: "×";
+        }
+
+        input:valid+.icon-clear {
+            visibility: visible;
+        }
+    </style>
+</head>
+
+<body>
+    <input id="search"
+           type="text"
+           value="我是初始值"
+           required>
+    <label for="search"
+           class="icon-clear"></label>
+</body>
+
+</html>

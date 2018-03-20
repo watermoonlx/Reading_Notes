@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="text"
+           id="num">
+    <button onclick="calculate()">计算</button>
+
+    <script>
+
+        var worker = new Worker('sum.js');
+        worker.onmessage = function (event) {
+            alert(`合计值为: ${event.data}`);
+        }
+
+        function calculate() {
+            var num = parseInt(document.getElementById('num').value, 10);
+            worker.postMessage(num);
+        } 
+    </script>
+</body>
+
+</html>

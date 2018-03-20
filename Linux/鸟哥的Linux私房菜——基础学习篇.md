@@ -18,7 +18,7 @@
 
 磁盘的第一个分区主要记录了两个重要信息：
 
-* 主引导分区（Master Boot Record，MBR）：可以安装引导家长程序的地方，有446Byte。
+* 主引导分区（Master Boot Record，MBR）：可以安装引导加载程序的地方，有446Byte。
 * 分区表（partion table）：记录整块硬盘分区的状态，有64bytes。
 
 **4.磁盘分区表**
