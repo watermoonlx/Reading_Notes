@@ -26,7 +26,9 @@
     - [3.4 源码包管理](#34-源码包管理)
         - [（1）源码包和RPM包的区别](#1源码包和rpm包的区别)
         - [（2）源码包安装过程](#2源码包安装过程)
+        - [（3）源码包的卸载](#3源码包的卸载)
     - [3.5 脚本安装包](#35-脚本安装包)
+        - [例：LNMP(Nginx/MySQL/PHP)安装](#例lnmpnginxmysqlphp安装)
 
 # 第2章 软件包管理简介
 E
@@ -78,6 +80,8 @@ RPM包文件的默认安装位置是由RPM包作者指定的。通常符合以�
 | `/usr/lib/`       | 程序所使用的函数库 |
 | `/usr/share/doc/` | 基本的软件使用手册 |
 | `/usr/share/man/` | 帮助文件           |
+
+但也可以自行指定安装位置。但建议不要自行指定。
 
 ## 3.2 RPM命令管理
 
@@ -229,6 +233,78 @@ RPM包文件的默认安装位置是由RPM包作者指定的。通常符合以�
 
 ### （1）源码包和RPM包的区别
 
+* 安装之前的区别：概念上的区别
+* 安装之后的区别：安装位置不同
+
+RPM包一般安装在由作者指定的默认位置，不手动指定。这样可以通过系统服务管理命令（`service`）来管理。例如RPM包安装的Apache的启动方法是：
+* `/etc/rc.d/init.d/httpd start`：默认启动程序都在这个目录下。
+* `service httpd start`：通过服务管理命令启动（默认搜索的就是上面的目录）。
+
+源码包的安装位置必须手动指定。一般是`/usr/local/软件名/`。因此，源码包安装的服务不能被服务管理命令管理，因为没有安装到默认路径中。只能使用绝对路径进行服务管理，如：
+* `/usr/local/apache2/bin/apachectl start`。
+
 ### （2）源码包安装过程
 
+1.安装准备
+* 安装C语言编译器（gcc）
+* 下载源码包。
+    * apache源码链接：http://mirror.bit.edu.cn/apache/httpd/#mirrors。
+
+如何将本地window上的软件包传输到远程Linux上呢？使用`winscp`。
+> WinSCP是一个Windows环境下使用SSH的开源图形化SFTP客户端。同时支持SCP协议。它的主要功能就是在本地与远程计算机间安全的复制文件。
+
+2.安装注意事项
+* 源代码（源码包）保存位置：`/usr/local/src/软件名/`
+* 软件安装位置：`/usr/local/软件名/`
+* 如何确定安装过程报错：
+    * 安装过程停止，
+    * 并出现error、warning或no的提示。
+
+3.源码包安装过程（以apache举例）
+* 下载源码包
+* 解压缩下载的源码包
+* 进入解压缩目录
+* 执行`./configure`。即执行当前目录下的`configure`shell脚本。基本上每个源码包都有这个脚本。 `configure`作用：
+    * 定义需要的功能选项。
+    * 检测系统环境是否符合安装要求。
+    * 把定义好的功能选项和检测系统环境的信息都写入`Makefile`文件，用于支持后续的make命令。
+例：指定安装位置`./configure --prefix=/usr/local/apache2`
+
+* `make`编译
+    * 如果保存，执行`make clean`命令，清除所有编译后文件，以便重头再来。
+
+* `make install`安装
+
+* 启动apache服务：`/usr/local/apache2/bin/apachectl start`。
+    * 如何知道启动程序的目录呢？可查看解压后目录下的`INSTALL`文件，里面说明了详细安装步骤。
+
+* 测试是否启动成功：
+    * 设置防火墙，打开80端口。参考：https://blog.csdn.net/weiyuefei/article/details/78899956。
+        * `firewall-cmd --zone=public --add-port=80/tcp --permanent`
+        * `firewall-cmd --reload`
+    * 用浏览器访问linux主机IP地址
+
+### （3）源码包的卸载
+* 不需要卸载命令，直接删除安装目录即可。不会遗留任何垃圾文件。
+
 ## 3.5 脚本安装包
+
+> 脚本安装包。把复杂的软件包安装过程写成了程序脚本，初学者可以执行脚本实现一键安装。但实际安装的还是**源码包**和**二进制包**。
+> 优点：简单、快速、方便
+> 缺点：
+> * 不能定义安装软件的版本
+> * 不能定义所需的软件功能
+
+### 例：LNMP(Nginx/MySQL/PHP)安装
+
+1.准备工作
+* 关闭httpd和MySQL
+* 保障yum源正常使用
+* 关闭SELinux和防火墙
+    * `vim /etc/selinux/config`，把SELINUX=enforcing修改为disabled。重启计算机。
+
+2.安装步骤
+* 下载lnmp脚本。https://lnmp.org/。
+* 解压缩。`tar -zxvf lnmp1.0-full.tar.gz`。
+* 进入解压目录。
+* 执行安装脚本。`./centos.sh`
