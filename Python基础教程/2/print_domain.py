@@ -1,4 +1,7 @@
-url = raw_input('Please enter URL:')
-domain = url[11:-4]
 
-print 'Domain name: ' + domain
+print('1')
+print('2')
+print('2')
+print('2')
+print('2')
+print('2')

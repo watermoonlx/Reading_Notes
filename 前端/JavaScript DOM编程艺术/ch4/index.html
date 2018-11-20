@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge">
+    <title>Image Gallery</title>
+    <style>
+        ul {
+            padding: 0;
+        }
+
+        li {
+            float: left;
+            padding: 1em;
+            list-style: none;
+        }
+
+        img {
+            display: block;
+            clear: both;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Snapshots</h1>
+    <ul>
+        <li><a href="images/Play.jpg">Play</a></li>
+        <li><a href="images/Super Star.jpg">Super Star</a></li>
+        <li><a href="images/Together.jpg">Together</a></li>
+        <li><a href="images/奇幻旅程.jpg">奇幻旅程</a></li>
+        <li><a href="images/女生宿舍.jpg">女生宿舍</a></li>
+        <li><a href="images/安可.jpg">安可</a></li>
+        <li><a href="images/美丽新世界.jpg">美丽新世界</a></li>
+        <li><a href="images/青春株式会社.jpg">青春株式会社</a></li>
+    </ul>
+
+    <img src="images/合影.jpg"
+         id="placeholder"
+         alt="">
+    <p id="desc">请选择一张专辑</p>
+</body>
+
+<script>
+    (function () {
+        const anchors = document.getElementsByTagName('a');
+        const placeholder = document.getElementById('placeholder');
+        const desc = document.getElementById('desc');
+        for (const a of anchors) {
+            a.addEventListener('click', (ev) => {
+                placeholder.src = a.href;
+                document.title = a.innerText;
+                desc.childNodes[0].nodeValue = a.innerText;
+                ev.preventDefault();
+            });
+        }
+    }())
+</script>
+
+</html>

@@ -1,0 +1,31 @@
+body {
+    font-family: "Helvetica", "Arial", sans-serif;
+    background-color: #fff;
+    color: #000;
+}
+
+table {
+    margin: auto;
+    border: 1px solid #699;
+}
+
+caption {
+    margin: auto;
+    padding: .2em;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+th {
+    font-weight: normal;
+    font-style: italic;
+    text-align: left;
+    border: 1px dotted #669;
+    background-color: #9cc;
+}
+
+th,
+td {
+    width: 10em;
+    padding: .5em;
+}

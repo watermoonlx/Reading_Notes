@@ -31,7 +31,7 @@
         - [例：LNMP(Nginx/MySQL/PHP)安装](#例lnmpnginxmysqlphp安装)
 
 # 第2章 软件包管理简介
-E
+
 ## 2.1 软件包分类
 
 * 源码包。自己编译。
